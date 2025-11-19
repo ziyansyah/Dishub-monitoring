@@ -228,9 +228,6 @@ let UsersService = class UsersService {
             where: { isActive: true },
             take: 5,
             orderBy: { createdAt: 'desc' },
-            include: {
-                role: true,
-            },
             select: {
                 id: true,
                 username: true,

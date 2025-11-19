@@ -27,7 +27,7 @@ exports.AuthModule = AuthModule = __decorate([
             database_module_1.DatabaseModule,
             passport_1.PassportModule,
             jwt_1.JwtModule.registerAsync({
-                useFactory: async (configService) => ({
+                useFactory: (configService) => ({
                     secret: configService.get('JWT_SECRET'),
                     signOptions: {
                         expiresIn: configService.get('JWT_EXPIRES_IN') || '1h',

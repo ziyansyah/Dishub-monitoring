@@ -145,36 +145,16 @@ export declare class UsersService {
             roleName: string;
             userCount: number;
         }[];
-        recentUsers: ({
+        recentUsers: {
             role: {
-                description: string;
                 name: string;
-                id: string;
-                isActive: boolean;
-                createdAt: Date;
-                updatedAt: Date;
-                canView: boolean;
-                canEdit: boolean;
-                canExport: boolean;
-                canDelete: boolean;
             };
             username: string;
             email: string;
             name: string;
             id: string;
             createdAt: Date;
-        } & {
-            username: string;
-            password: string;
-            email: string;
-            name: string;
-            roleId: string;
-            avatar: string | null;
-            id: string;
-            isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
-        })[];
+        }[];
     }>;
     toggleActiveStatus(id: string): Promise<{
         role: {
