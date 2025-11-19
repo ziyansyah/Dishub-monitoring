@@ -99,7 +99,7 @@ const Login = () => {
 
             <div className="bg-accent/10 border border-accent/20 rounded-lg p-4">
               <p className="text-sm text-center text-muted-foreground">
-                Demo: <code className="text-primary font-semibold bg-primary/10 px-2 py-1 rounded">admin</code> / <code className="text-primary font-semibold bg-primary/10 px-2 py-1 rounded">admin</code>
+                Masuk dengan kredensial yang telah disediakan
               </p>
             </div>
           </form>
