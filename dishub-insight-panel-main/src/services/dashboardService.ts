@@ -128,16 +128,16 @@ export const useRefreshDashboard = () => {
 
   return {
     refreshAll: () => {
-      queryClient?.invalidateQueries({ queryKey: ['dashboard-stats'] });
-      queryClient?.invalidateQueries({ queryKey: ['recent-scans'] });
-      queryClient?.invalidateQueries({ queryKey: ['weekly-trend'] });
-      queryClient?.invalidateQueries({ queryKey: ['tax-status-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['recent-scans'] });
+      queryClient.invalidateQueries({ queryKey: ['weekly-trend'] });
+      queryClient.invalidateQueries({ queryKey: ['tax-status-stats'] });
     },
     refreshStats: () => {
-      queryClient?.invalidateQueries({ queryKey: ['dashboard-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
     },
     refreshRecentScans: () => {
-      queryClient?.invalidateQueries({ queryKey: ['recent-scans'] });
+      queryClient.invalidateQueries({ queryKey: ['recent-scans'] });
     },
   };
 };
