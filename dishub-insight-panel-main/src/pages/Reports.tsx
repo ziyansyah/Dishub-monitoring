@@ -21,6 +21,9 @@ const Reports = () => {
   const [endDate, setEndDate] = useState("");
   const [taxStatus, setTaxStatus] = useState("all");
   const [showPreview, setShowPreview] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const { exportPDF, exportExcel } = useReportExport();
 
   const handleGenerate = () => {
     if (!startDate || !endDate) {
@@ -30,12 +33,44 @@ const Reports = () => {
     setShowPreview(true);
   };
 
-  const handleDownloadPDF = () => {
-    toast.success("Laporan PDF sedang diunduh...");
+  const handleDownloadPDF = async () => {
+    if (!startDate || !endDate) {
+      toast.error("Harap isi tanggal mulai dan tanggal akhir");
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      await exportPDF({
+        startDate,
+        endDate,
+        status: taxStatus === "all" ? undefined : taxStatus,
+      });
+    } catch (error) {
+      // Error is already handled by the service
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
-  const handleExportExcel = () => {
-    toast.success("Laporan Excel sedang diunduh...");
+  const handleExportExcel = async () => {
+    if (!startDate || !endDate) {
+      toast.error("Harap isi tanggal mulai dan tanggal akhir");
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      await exportExcel({
+        startDate,
+        endDate,
+        status: taxStatus === "all" ? undefined : taxStatus,
+      });
+    } catch (error) {
+      // Error is already handled by the service
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
