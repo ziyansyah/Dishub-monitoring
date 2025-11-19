@@ -10,53 +10,50 @@ import { useVehicleSearch } from "@/services/vehicleService";
 import { useDebounce } from "@/hooks/useDebounce";
 import { VehicleSearchParams } from "@/types/api";
 
-const mockVehicles: VehicleData[] = [
-  {
-    id: "1",
-    plate: "BL 1234 AB",
-    type: "Mobil",
-    color: "Hitam",
-    owner: "Ahmad Fauzi",
-    taxStatus: "Aktif",
-    scanTime: "2024-01-15 08:30:00",
-  },
-  {
-    id: "2",
-    plate: "BL 5678 CD",
-    type: "Motor",
-    color: "Merah",
-    owner: "Siti Nurhaliza",
-    taxStatus: "Mati",
-    scanTime: "2024-01-15 08:45:00",
-  },
-  {
-    id: "3",
-    plate: "BL 9012 EF",
-    type: "Mobil",
-    color: "Putih",
-    owner: "Budi Santoso",
-    taxStatus: "Aktif",
-    scanTime: "2024-01-15 09:00:00",
-  },
-  {
-    id: "4",
-    plate: "BL 3456 GH",
-    type: "Motor",
-    color: "Biru",
-    owner: "Dewi Lestari",
-    taxStatus: "Aktif",
-    scanTime: "2024-01-15 09:15:00",
-  },
-  {
-    id: "5",
-    plate: "BL 7890 IJ",
-    type: "Mobil",
-    color: "Silver",
-    owner: "Rudi Hartono",
-    taxStatus: "Mati",
-    scanTime: "2024-01-15 09:30:00",
-  },
-];
+// Convert API data to component format
+const convertToVehicleData = (vehicles: any[]): VehicleData[] => {
+  return vehicles.map(vehicle => ({
+    id: vehicle.id,
+    plate: vehicle.plateNumber,
+    type: vehicle.vehicleType.charAt(0).toUpperCase() + vehicle.vehicleType.slice(1),
+    color: vehicle.color || "-",
+    owner: vehicle.ownerName,
+    taxStatus: vehicle.taxStatus === 'lunas' ? 'Aktif' : 'Mati',
+    scanTime: vehicle.lastScanDate,
+  }));
+};
+
+// Component for loading skeleton
+const VehicleTableSkeleton = () => (
+  <div className="bg-card rounded-lg border shadow-sm overflow-hidden">
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead className="bg-muted/50">
+          <tr>
+            <th className="p-4 text-left font-medium">Nomor Plat</th>
+            <th className="p-4 text-left font-medium">Jenis</th>
+            <th className="p-4 text-left font-medium">Warna</th>
+            <th className="p-4 text-left font-medium">Pemilik</th>
+            <th className="p-4 text-left font-medium">Status Pajak</th>
+            <th className="p-4 text-left font-medium">Waktu Scan</th>
+          </tr>
+        </thead>
+        <tbody>
+          {[...Array(5)].map((_, i) => (
+            <tr key={i} className="border-t">
+              <td className="p-4"><Skeleton className="h-4 w-[100px]" /></td>
+              <td className="p-4"><Skeleton className="h-4 w-[80px]" /></td>
+              <td className="p-4"><Skeleton className="h-4 w-[60px]" /></td>
+              <td className="p-4"><Skeleton className="h-4 w-[120px]" /></td>
+              <td className="p-4"><Skeleton className="h-4 w-[80px]" /></td>
+              <td className="p-4"><Skeleton className="h-4 w-[140px]" /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");
