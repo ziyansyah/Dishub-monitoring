@@ -1,56 +1,45 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Car, Calendar } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Clock, Car, Calendar, Loader2 } from "lucide-react";
+import { useScanHistory } from "@/services/reportsService";
+import { getPredefinedDateRanges } from "@/services/reportsService";
 
-interface ScanHistory {
-  id: string;
-  plate: string;
-  type: string;
-  color: string;
-  owner: string;
-  taxStatus: "Lunas" | "Belum Lunas";
-  scanTime: string;
-}
+// Convert API data to component format
+const convertToHistoryItem = (scans: any[]) => {
+  return scans.map(scan => ({
+    id: scan.id,
+    plate: scan.plateNumber,
+    type: scan.vehicleType.charAt(0).toUpperCase() + scan.vehicleType.slice(1),
+    color: "-", // Not available in API
+    owner: scan.ownerName,
+    taxStatus: scan.status === 'compliant' ? "Lunas" : "Belum Lunas",
+    scanTime: scan.scanTime,
+    officer: scan.officer,
+  }));
+};
 
-const mockHistory: ScanHistory[] = [
-  {
-    id: "1",
-    plate: "BK 1234 AB",
-    type: "Mobil",
-    color: "Hitam",
-    owner: "Ahmad Fauzi",
-    taxStatus: "Lunas",
-    scanTime: "2025-11-07 10:15:00",
-  },
-  {
-    id: "2",
-    plate: "BK 5678 CD",
-    type: "Motor",
-    color: "Merah",
-    owner: "Siti Nurhaliza",
-    taxStatus: "Belum Lunas",
-    scanTime: "2025-11-07 09:45:00",
-  },
-  {
-    id: "3",
-    plate: "BK 9012 EF",
-    type: "Mobil",
-    color: "Putih",
-    owner: "Budi Santoso",
-    taxStatus: "Lunas",
-    scanTime: "2025-11-07 09:30:00",
-  },
-  {
-    id: "4",
-    plate: "BK 3456 GH",
-    type: "Motor",
-    color: "Biru",
-    owner: "Dewi Lestari",
-    taxStatus: "Lunas",
-    scanTime: "2025-11-07 08:50:00",
-  },
-];
+// Component for loading skeleton
+const HistoryItemSkeleton = () => (
+  <div className="bg-card border rounded-lg p-6">
+    <div className="flex items-start gap-4">
+      <Skeleton className="h-12 w-12 rounded-full" />
+      <div className="flex-1 space-y-3">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-6 w-[120px]" />
+          <Skeleton className="h-5 w-[80px]" />
+        </div>
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-4 w-[60px]" />
+          <Skeleton className="h-4 w-[40px]" />
+          <Skeleton className="h-4 w-[80px]" />
+        </div>
+        <Skeleton className="h-4 w-[140px]" />
+      </div>
+    </div>
+  </div>
+);
 
 const History = () => {
   const [filter, setFilter] = useState<"today" | "week" | "month">("today");
