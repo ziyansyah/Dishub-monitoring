@@ -3,7 +3,8 @@ import { StatCard } from "@/components/StatCard";
 import { VehicleTable, VehicleData } from "@/components/VehicleTable";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Car, AlertTriangle, CheckCircle, Activity } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Car, AlertTriangle, CheckCircle, Activity, RefreshCw } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -17,6 +18,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { useDashboardData, useRefreshDashboard } from "@/services/dashboardService";
 
 const trendData = [
   { day: "Sen", count: 180 },
