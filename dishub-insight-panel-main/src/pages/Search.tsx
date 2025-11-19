@@ -1,10 +1,14 @@
 import { useState, useMemo } from "react";
-import { Search as SearchIcon, Filter } from "lucide-react";
+import { Search as SearchIcon, Filter, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { VehicleTable, VehicleData } from "@/components/VehicleTable";
+import { useVehicleSearch } from "@/services/vehicleService";
+import { useDebounce } from "@/hooks/useDebounce";
+import { VehicleSearchParams } from "@/types/api";
 
 const mockVehicles: VehicleData[] = [
   {
