@@ -42,6 +42,31 @@ const SummaryCardSkeleton = () => (
 );
 
 const Statistics = () => {
+  const [period, setPeriod] = useState<string>("month");
+  const { vehicleTypes, taxStatus, scanTrends, isLoading, isError, lastUpdated } = useStatisticsData(period);
+  const { exportPDF, exportExcel } = useExportStatistics();
+
+  // Calculate summary statistics from real data
+  const summaryStats = vehicleTypes.data && taxStatus.data
+    ? calculateSummaryStats(vehicleTypes.data, taxStatus.data)
+    : { totalVehicles: 0, compliantVehicles: 0, complianceRate: "0", mostCommonType: "N/A" };
+
+  const handleExportPDF = async () => {
+    try {
+      await exportPDF();
+    } catch (error) {
+      // Error is already handled by the service
+    }
+  };
+
+  const handleExportExcel = async () => {
+    try {
+      await exportExcel();
+    } catch (error) {
+      // Error is already handled by the service
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -51,10 +76,26 @@ const Statistics = () => {
             Analisis data kendaraan hasil scan
           </p>
         </div>
-        <Button className="gap-2">
-          <Download className="h-4 w-4" />
-          Download Statistik (PDF)
-        </Button>
+        <div className="flex gap-2">
+          <Select value={period} onValueChange={setPeriod}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="week">Minggu Ini</SelectItem>
+              <SelectItem value="month">Bulan Ini</SelectItem>
+              <SelectItem value="year">Tahun Ini</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button className="gap-2" onClick={handleExportPDF} disabled={isLoading}>
+            <Download className="h-4 w-4" />
+            Export PDF
+          </Button>
+          <Button className="gap-2" variant="outline" onClick={handleExportExcel} disabled={isLoading}>
+            <Download className="h-4 w-4" />
+            Export Excel
+          </Button>
+        </div>
       </div>
 
       {/* Insight Box */}
@@ -64,10 +105,19 @@ const Statistics = () => {
             <TrendingUp className="h-6 w-6 text-warning" />
           </div>
           <div>
-            <h3 className="font-semibold text-foreground mb-1">Insight Minggu Ini</h3>
+            <h3 className="font-semibold text-foreground mb-1">Insight {period === "week" ? "Minggu" : period === "month" ? "Bulan" : "Tahun"} Ini</h3>
             <p className="text-sm text-muted-foreground">
-              Kendaraan belum bayar pajak naik <span className="font-bold text-warning">12%</span> dibanding minggu lalu. 
-              Total <span className="font-bold">2,580 kendaraan</span> perlu ditindaklanjuti.
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Memuat data...
+                </div>
+              ) : (
+                <>
+                  Total <span className="font-bold">{summaryStats.totalVehicles.toLocaleString()} kendaraan</span> tercatat dalam sistem.
+                  Tingkat kepatuhan pajak saat ini <span className="font-bold text-warning">{summaryStats.complianceRate}%</span>.
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -76,12 +126,74 @@ const Statistics = () => {
       {/* Charts Grid */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Bar Chart - Vehicle Types */}
+        {isLoading ? (
+          <ChartSkeleton />
+        ) : (
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Jumlah Kendaraan per Jenis</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={vehicleTypes.data || []}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis dataKey="type" className="text-sm" />
+                <YAxis className="text-sm" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "8px",
+                  }}
+                />
+                <Bar dataKey="count" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </Card>
+        )}
+
+        {/* Pie Chart - Tax Status */}
+        {isLoading ? (
+          <ChartSkeleton />
+        ) : (
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Proporsi Status Pajak</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={taxStatus.data || []}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="count"
+                >
+                  {(taxStatus.data || []).map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={TAX_COLORS[index % TAX_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "8px",
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </Card>
+        )}
+      </div>
+
+      {/* Line Chart - Trends */}
+      {isLoading ? (
+        <ChartSkeleton />
+      ) : (
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Jumlah Kendaraan per Jenis</h3>
+          <h3 className="text-lg font-semibold mb-4">Tren Scan {period === "week" ? "Mingguan" : period === "month" ? "Bulanan" : "Tahunan"}</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={vehicleTypeData}>
+            <LineChart data={scanTrends.data || []}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis dataKey="name" className="text-sm" />
+              <XAxis dataKey="date" className="text-sm" />
               <YAxis className="text-sm" />
               <Tooltip
                 contentStyle={{
@@ -90,87 +202,57 @@ const Statistics = () => {
                   borderRadius: "8px",
                 }}
               />
-              <Bar dataKey="value" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </Card>
-
-        {/* Pie Chart - Tax Status */}
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Proporsi Status Pajak</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={taxStatusData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {taxStatusData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={TAX_COLORS[index % TAX_COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
-                  borderRadius: "8px",
-                }}
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="scans"
+                stroke="hsl(var(--primary))"
+                strokeWidth={2}
+                name="Jumlah Scan"
+                dot={{ fill: "hsl(var(--primary))", r: 4 }}
               />
-            </PieChart>
+              <Line
+                type="monotone"
+                dataKey="newVehicles"
+                stroke="hsl(var(--success))"
+                strokeWidth={2}
+                name="Kendaraan Baru"
+                dot={{ fill: "hsl(var(--success))", r: 4 }}
+              />
+            </LineChart>
           </ResponsiveContainer>
         </Card>
-      </div>
-
-      {/* Line Chart - Weekly Trend */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Tren Scan Mingguan</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={trendData}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis dataKey="day" className="text-sm" />
-            <YAxis className="text-sm" />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "hsl(var(--card))",
-                border: "1px solid hsl(var(--border))",
-                borderRadius: "8px",
-              }}
-            />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="count"
-              stroke="hsl(var(--primary))"
-              strokeWidth={2}
-              name="Jumlah Scan"
-              dot={{ fill: "hsl(var(--primary))", r: 4 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </Card>
+      )}
 
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="p-6">
-          <div className="text-sm text-muted-foreground mb-2">Total Kendaraan Terscan</div>
-          <div className="text-3xl font-bold text-foreground">14,380</div>
-          <div className="text-xs text-success mt-2">+8% dari bulan lalu</div>
-        </Card>
-        <Card className="p-6">
-          <div className="text-sm text-muted-foreground mb-2">Rata-rata Scan per Hari</div>
-          <div className="text-3xl font-bold text-foreground">352</div>
-          <div className="text-xs text-muted-foreground mt-2">7 hari terakhir</div>
-        </Card>
-        <Card className="p-6">
-          <div className="text-sm text-muted-foreground mb-2">Tingkat Kepatuhan Pajak</div>
-          <div className="text-3xl font-bold text-foreground">80.7%</div>
-          <div className="text-xs text-warning mt-2">-2% dari target</div>
-        </Card>
+        {isLoading ? (
+          <>
+            <SummaryCardSkeleton />
+            <SummaryCardSkeleton />
+            <SummaryCardSkeleton />
+          </>
+        ) : (
+          <>
+            <Card className="p-6">
+              <div className="text-sm text-muted-foreground mb-2">Total Kendaraan Terscan</div>
+              <div className="text-3xl font-bold text-foreground">{summaryStats.totalVehicles.toLocaleString()}</div>
+              <div className="text-xs text-success mt-2">Tipe terbanyak: {summaryStats.mostCommonType}</div>
+            </Card>
+            <Card className="p-6">
+              <div className="text-sm text-muted-foreground mb-2">Kendaraan Patuh</div>
+              <div className="text-3xl font-bold text-foreground">{summaryStats.compliantVehicles.toLocaleString()}</div>
+              <div className="text-xs text-success mt-2">{summaryStats.complianceRate}% kepatuhan</div>
+            </Card>
+            <Card className="p-6">
+              <div className="text-sm text-muted-foreground mb-2">Update Terakhir</div>
+              <div className="text-lg font-bold text-foreground">
+                {lastUpdated ? new Date(lastUpdated).toLocaleTimeString("id-ID") : "-"}
+              </div>
+              <div className="text-xs text-muted-foreground mt-2">Real-time data</div>
+            </Card>
+          </>
+        )}
       </div>
     </div>
   );
