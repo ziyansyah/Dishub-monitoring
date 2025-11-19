@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { TopNavigation } from "@/components/TopNavigation";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import { authService } from "@/services/authService";
 import Dashboard from "./pages/Dashboard";
 import Search from "./pages/Search";
 import History from "./pages/History";
@@ -15,10 +17,29 @@ import ActivityLog from "./pages/ActivityLog";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error) => {
+        // Don't retry on 401/403 errors
+        if (error && typeof error === 'object' && 'statusCode' in error) {
+          const statusCode = (error as any).statusCode;
+          if (statusCode === 401 || statusCode === 403) return false;
+        }
+        return failureCount < 2;
+      },
+      staleTime: 10000, // 10 seconds default
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
+    },
+    mutations: {
+      retry: false,
+    },
+  },
+});
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = localStorage.getItem("dishub_admin") === "true";
+  const isAuthenticated = authService.isAuthenticated();
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 };
 
