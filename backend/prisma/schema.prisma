@@ -1,0 +1,129 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String   @unique
+  name      String
+  password  String
+  avatar    String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  roleId    String
+  role      Role     @relation(fields: [roleId], references: [id])
+  scans     Scan[]
+  activities ActivityLog[]
+  generatedReports Report[] @relation("ReportGenerator")
+
+  @@map("users")
+}
+
+model Role {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String
+
+  // Permissions
+  canView     Boolean @default(true)
+  canEdit     Boolean @default(false)
+  canExport   Boolean @default(false)
+  canDelete   Boolean @default(false)
+
+  isActive    Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  users       User[]
+
+  @@map("roles")
+}
+
+model Vehicle {
+  id            String   @id @default(cuid())
+  plateNumber   String   @unique
+  vehicleType   String   // Mobil, Motor, Truk
+  color         String
+  ownerName     String
+  taxStatus     String   // Aktif, Mati
+  taxExpiryDate DateTime?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  scans         Scan[]
+
+  @@map("vehicles")
+}
+
+model Scan {
+  id        String   @id @default(cuid())
+  plateNumber String
+  vehicleType  String
+  color        String
+  ownerName    String
+  taxStatus    String
+  scanTime     DateTime @default(now())
+
+  // Metadata
+  ipAddress    String?
+  userAgent    String?
+  location     String?
+
+  // Relations
+  vehicleId String?
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("scans")
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  action    String   // Login, Export, Delete, etc.
+  timestamp DateTime @default(now())
+  ipAddress String?
+  userAgent String?
+  status    String   // success, failed
+  details   String?  // Additional details about the action
+
+  // Relations
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("activity_logs")
+}
+
+model Report {
+  id          String   @id @default(cuid())
+  title       String
+  startDate   DateTime
+  endDate     DateTime
+  filterType  String   // all, lunas, belum-lunas
+  filePath    String?
+  fileFormat  String   // pdf, excel
+  status      String   // generating, completed, failed
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  generatedBy String
+  generator   User     @relation("ReportGenerator", fields: [generatedBy], references: [id])
+
+  @@map("reports")
+}
