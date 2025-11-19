@@ -13,27 +13,31 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!username || !password) {
       toast.error("Username dan password harus diisi");
       return;
     }
 
     setIsLoading(true);
-    
-    // Simulate login
-    setTimeout(() => {
-      if (username === "admin" && password === "admin") {
-        localStorage.setItem("dishub_admin", "true");
+
+    try {
+      const response = await authService.login(username, password);
+
+      if (response.success) {
         toast.success("Login berhasil!");
         navigate("/");
       } else {
-        toast.error("Username atau password salah");
+        // Error is already handled by authService with toast notification
       }
+    } catch (error) {
+      // Error is already handled by authService with toast notification
+      console.error('Login error:', error);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
