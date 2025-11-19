@@ -124,7 +124,7 @@ export const useDashboardData = (recentScansLimit: number = 5) => {
 
 // Hook for manual refresh
 export const useRefreshDashboard = () => {
-  const queryClient = useQueryClient?.();
+  const queryClient = useQueryClient();
 
   return {
     refreshAll: () => {
