@@ -20,70 +20,42 @@ import {
 } from "recharts";
 import { useDashboardData, useRefreshDashboard } from "@/services/dashboardService";
 
-const trendData = [
-  { day: "Sen", count: 180 },
-  { day: "Sel", count: 220 },
-  { day: "Rab", count: 280 },
-  { day: "Kam", count: 310 },
-  { day: "Jum", count: 290 },
-  { day: "Sab", count: 250 },
-  { day: "Min", count: 200 },
-];
-
-const taxStatusData = [
-  { name: "Lunas", value: 1161 },
-  { name: "Belum Lunas", value: 87 },
-];
-
 const COLORS = ["hsl(var(--success))", "hsl(var(--warning))"];
 
-const mockVehicles: VehicleData[] = [
-  {
-    id: "1",
-    plate: "BL 1234 AB",
-    type: "Mobil",
-    color: "Hitam",
-    owner: "Ahmad Fauzi",
-    taxStatus: "Aktif",
-    scanTime: "2024-01-15 08:30:00",
-  },
-  {
-    id: "2",
-    plate: "BL 5678 CD",
-    type: "Motor",
-    color: "Merah",
-    owner: "Siti Nurhaliza",
-    taxStatus: "Mati",
-    scanTime: "2024-01-15 08:45:00",
-  },
-  {
-    id: "3",
-    plate: "BL 9012 EF",
-    type: "Mobil",
-    color: "Putih",
-    owner: "Budi Santoso",
-    taxStatus: "Aktif",
-    scanTime: "2024-01-15 09:00:00",
-  },
-  {
-    id: "4",
-    plate: "BL 3456 GH",
-    type: "Motor",
-    color: "Biru",
-    owner: "Dewi Lestari",
-    taxStatus: "Aktif",
-    scanTime: "2024-01-15 09:15:00",
-  },
-  {
-    id: "5",
-    plate: "BL 7890 IJ",
-    type: "Mobil",
-    color: "Silver",
-    owner: "Rudi Hartono",
-    taxStatus: "Mati",
-    scanTime: "2024-01-15 09:30:00",
-  },
-];
+// Component for loading skeleton
+const StatCardSkeleton = () => (
+  <Card className="p-6">
+    <div className="flex items-center justify-between">
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-[140px]" />
+        <Skeleton className="h-8 w-[80px]" />
+        <Skeleton className="h-4 w-[60px]" />
+      </div>
+      <Skeleton className="h-12 w-12 rounded-lg" />
+    </div>
+  </Card>
+);
+
+// Component for chart skeleton
+const ChartSkeleton = () => (
+  <Card className="p-6">
+    <Skeleton className="h-6 w-[180px] mb-4" />
+    <Skeleton className="h-[250px] w-full" />
+  </Card>
+);
+
+// Convert API data to component format
+const convertToVehicleData = (scans: any[]): VehicleData[] => {
+  return scans.map(scan => ({
+    id: scan.id,
+    plate: scan.plateNumber,
+    type: scan.vehicleType,
+    color: "-", // Not available in API, set default
+    owner: scan.ownerName,
+    taxStatus: scan.status === 'compliant' ? 'Aktif' : 'Mati',
+    scanTime: scan.scanTime,
+  }));
+};
 
 const Dashboard = () => {
   const [limit, setLimit] = useState<number>(10);
