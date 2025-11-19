@@ -10,6 +10,7 @@ import {
   HttpCode,
   Ip,
   Headers,
+  Body,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
