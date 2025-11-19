@@ -59,108 +59,144 @@ const convertToVehicleData = (scans: any[]): VehicleData[] => {
 
 const Dashboard = () => {
   const [limit, setLimit] = useState<number>(10);
+  const { stats, recentScans, weeklyTrend, taxStatus, isLoading, isError, lastUpdated } = useDashboardData(limit);
+  const { refreshAll } = useRefreshDashboard();
+
+  // Convert recent scans to vehicle data format
+  const vehicleData = recentScans.data ? convertToVehicleData(recentScans.data) : [];
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground mt-1">
-          Monitoring kendaraan real-time dari CCTV Dishub Kota Medan
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground mt-1">
+            Monitoring kendaraan real-time dari CCTV Dishub Kota Medan
+          </p>
+        </div>
+        <button
+          onClick={refreshAll}
+          className="flex items-center gap-2 px-4 py-2 text-sm bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors"
+          disabled={isLoading}
+        >
+          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          Refresh
+        </button>
       </div>
 
       {/* Statistics Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Total Kendaraan Terdeteksi"
-          value="1,248"
-          icon={Car}
-          variant="primary"
-          trend={{ value: "12%", isPositive: true }}
-        />
-        <StatCard
-          title="Kendaraan Pajak Mati"
-          value="87"
-          icon={AlertTriangle}
-          variant="warning"
-          trend={{ value: "3%", isPositive: false }}
-        />
-        <StatCard
-          title="Kendaraan Pajak Aktif"
-          value="1,161"
-          icon={CheckCircle}
-          variant="success"
-          trend={{ value: "8%", isPositive: true }}
-        />
-        <StatCard
-          title="Scan Hari Ini"
-          value="342"
-          icon={Activity}
-          variant="info"
-          trend={{ value: "15%", isPositive: true }}
-        />
+        {isLoading ? (
+          <>
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+          </>
+        ) : (
+          <>
+            <StatCard
+              title="Total Kendaraan Terdeteksi"
+              value={stats.data?.totalVehicles?.toLocaleString() || "0"}
+              icon={Car}
+              variant="primary"
+              trend={{ value: "12%", isPositive: true }}
+            />
+            <StatCard
+              title="Kendaraan Pajak Mati"
+              value={(stats.data?.totalVehicles - stats.data?.taxCompliant)?.toLocaleString() || "0"}
+              icon={AlertTriangle}
+              variant="warning"
+              trend={{ value: "3%", isPositive: false }}
+            />
+            <StatCard
+              title="Kendaraan Pajak Aktif"
+              value={stats.data?.taxCompliant?.toLocaleString() || "0"}
+              icon={CheckCircle}
+              variant="success"
+              trend={{ value: "8%", isPositive: true }}
+            />
+            <StatCard
+              title="Scan Hari Ini"
+              value={stats.data?.activeScans?.toLocaleString() || "0"}
+              icon={Activity}
+              variant="info"
+              trend={{ value: "15%", isPositive: true }}
+            />
+          </>
+        )}
       </div>
 
       {/* Charts */}
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Tren Scan per Hari</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={trendData}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis dataKey="day" className="text-sm" />
-              <YAxis className="text-sm" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
-                  borderRadius: "8px",
-                }}
-              />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="count"
-                stroke="hsl(var(--primary))"
-                strokeWidth={2}
-                name="Jumlah Scan"
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </Card>
-
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Perbandingan Status Pajak</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={taxStatusData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) =>
-                  `${name} ${(percent * 100).toFixed(0)}%`
-                }
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {taxStatusData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
+        {isLoading ? (
+          <>
+            <ChartSkeleton />
+            <ChartSkeleton />
+          </>
+        ) : (
+          <>
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Tren Scan per Hari</h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={weeklyTrend.data || []}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="day" className="text-sm" />
+                  <YAxis className="text-sm" />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "8px",
+                    }}
                   />
-                ))}
-              </Pie>
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
-                  borderRadius: "8px",
-                }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        </Card>
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="scans"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={2}
+                    name="Jumlah Scan"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </Card>
+
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Perbandingan Status Pajak</h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={taxStatus.data || []}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) =>
+                      `${name} ${(percent * 100).toFixed(0)}%`
+                    }
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {(taxStatus.data || []).map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "8px",
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </Card>
+          </>
+        )}
       </div>
 
       {/* Recent Scans Table */}
@@ -169,13 +205,14 @@ const Dashboard = () => {
           <h2 className="text-xl font-semibold">Data Scan Terbaru</h2>
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground">
-              Update terakhir: {new Date().toLocaleTimeString("id-ID")}
+              Update terakhir: {lastUpdated ? new Date(lastUpdated).toLocaleTimeString("id-ID") : "-"}
             </span>
             <Select value={limit.toString()} onValueChange={(value) => setLimit(Number(value))}>
               <SelectTrigger className="w-[140px]">
                 <SelectValue placeholder="Jumlah data" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="5">5 Terbaru</SelectItem>
                 <SelectItem value="10">10 Terbaru</SelectItem>
                 <SelectItem value="20">20 Terbaru</SelectItem>
                 <SelectItem value="50">50 Terbaru</SelectItem>
@@ -183,7 +220,23 @@ const Dashboard = () => {
             </Select>
           </div>
         </div>
-        <VehicleTable vehicles={mockVehicles.slice(0, limit)} />
+        {isLoading ? (
+          <Card className="p-6">
+            <div className="space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-center space-x-4">
+                  <Skeleton className="h-12 w-12 rounded-lg" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-[200px]" />
+                    <Skeleton className="h-4 w-[150px]" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        ) : (
+          <VehicleTable vehicles={vehicleData.slice(0, limit)} />
+        )}
       </div>
     </div>
   );
