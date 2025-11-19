@@ -62,41 +62,44 @@ const Search = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const filteredVehicles = useMemo(() => {
-    return mockVehicles.filter((vehicle) => {
-      // Search query filter (plat, owner, type, color)
-      const matchesSearch = searchQuery === "" || 
-        vehicle.plate.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vehicle.owner.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vehicle.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vehicle.color.toLowerCase().includes(searchQuery.toLowerCase());
+  // Debounce search query to avoid excessive API calls
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-      // Vehicle type filter
-      const matchesType = vehicleType === "all" || 
-        vehicle.type.toLowerCase() === vehicleType.toLowerCase();
+  // Build search parameters for API
+  const searchParams: VehicleSearchParams = useMemo(() => {
+    const params: VehicleSearchParams = {
+      page: 1,
+      limit: 50,
+    };
 
-      // Tax status filter
-      const matchesTaxStatus = taxStatus === "all" ||
-        (taxStatus === "lunas" && vehicle.taxStatus === "Aktif") ||
-        (taxStatus === "belum-lunas" && vehicle.taxStatus === "Mati");
+    if (debouncedSearchQuery.trim()) {
+      params.search = debouncedSearchQuery.trim();
+    }
 
-      // Date range filter
-      let matchesDate = true;
-      if (startDate || endDate) {
-        const scanDate = new Date(vehicle.scanTime);
-        if (startDate) {
-          matchesDate = matchesDate && scanDate >= new Date(startDate);
-        }
-        if (endDate) {
-          const endDateTime = new Date(endDate);
-          endDateTime.setHours(23, 59, 59, 999);
-          matchesDate = matchesDate && scanDate <= endDateTime;
-        }
-      }
+    if (vehicleType !== "all") {
+      params.vehicleType = vehicleType;
+    }
 
-      return matchesSearch && matchesType && matchesTaxStatus && matchesDate;
-    });
-  }, [searchQuery, vehicleType, taxStatus, startDate, endDate]);
+    if (taxStatus !== "all") {
+      params.taxStatus = taxStatus;
+    }
+
+    if (startDate) {
+      params.startDate = startDate;
+    }
+
+    if (endDate) {
+      params.endDate = endDate;
+    }
+
+    return params;
+  }, [debouncedSearchQuery, vehicleType, taxStatus, startDate, endDate]);
+
+  // API call with search parameters
+  const { data: searchResult, isLoading, error } = useVehicleSearch(searchParams);
+
+  // Convert API data to component format
+  const vehicleData = searchResult?.data?.vehicles ? convertToVehicleData(searchResult.data.vehicles) : [];
 
   return (
     <div className="space-y-6">
