@@ -44,41 +44,45 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route
-              path="/*"
-              element={
-                <ProtectedRoute>
-                  <div className="min-h-screen flex flex-col bg-background">
-                    <TopNavigation />
-                    <main className="flex-1 container mx-auto px-4 py-6">
-                      <Routes>
-                        <Route path="/" element={<Dashboard />} />
-                        <Route path="/vehicles" element={<Search />} />
-                        <Route path="/history" element={<History />} />
-                        <Route path="/statistics" element={<Statistics />} />
-                        <Route path="/reports" element={<Reports />} />
-                        <Route path="/settings" element={<Settings />} />
-                        <Route path="/activity-log" element={<ActivityLog />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </main>
-                  </div>
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route
+                path="/*"
+                element={
+                  <ProtectedRoute>
+                    <ErrorBoundary>
+                      <div className="min-h-screen flex flex-col bg-background">
+                        <TopNavigation />
+                        <main className="flex-1 container mx-auto px-4 py-6">
+                          <Routes>
+                            <Route path="/" element={<Dashboard />} />
+                            <Route path="/vehicles" element={<Search />} />
+                            <Route path="/history" element={<History />} />
+                            <Route path="/statistics" element={<Statistics />} />
+                            <Route path="/reports" element={<Reports />} />
+                            <Route path="/settings" element={<Settings />} />
+                            <Route path="/activity-log" element={<ActivityLog />} />
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
+                        </main>
+                      </div>
+                    </ErrorBoundary>
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
