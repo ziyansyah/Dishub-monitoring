@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Download, TrendingUp } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Download, TrendingUp, Loader2 } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -16,30 +19,27 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-
-const vehicleTypeData = [
-  { name: "Mobil", value: 5320 },
-  { name: "Motor", value: 8120 },
-  { name: "Truk", value: 940 },
-];
-
-const taxStatusData = [
-  { name: "Lunas", value: 10800 },
-  { name: "Belum Lunas", value: 2580 },
-];
-
-const trendData = [
-  { day: "Senin", count: 200 },
-  { day: "Selasa", count: 320 },
-  { day: "Rabu", count: 400 },
-  { day: "Kamis", count: 450 },
-  { day: "Jumat", count: 370 },
-  { day: "Sabtu", count: 420 },
-  { day: "Minggu", count: 310 },
-];
+import { useStatisticsData, useExportStatistics } from "@/services/statisticsService";
+import { calculateSummaryStats } from "@/services/statisticsService";
 
 const COLORS = ["hsl(var(--primary))", "hsl(var(--warning))", "hsl(var(--info))"];
 const TAX_COLORS = ["hsl(var(--success))", "hsl(var(--warning))"];
+
+// Component for loading skeleton
+const ChartSkeleton = () => (
+  <Card className="p-6">
+    <Skeleton className="h-6 w-[180px] mb-4" />
+    <Skeleton className="h-[300px] w-full" />
+  </Card>
+);
+
+const SummaryCardSkeleton = () => (
+  <Card className="p-6">
+    <Skeleton className="h-4 w-[140px] mb-2" />
+    <Skeleton className="h-8 w-[80px] mb-2" />
+    <Skeleton className="h-4 w-[80px]" />
+  </Card>
+);
 
 const Statistics = () => {
   return (
