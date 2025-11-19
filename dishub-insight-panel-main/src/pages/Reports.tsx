@@ -128,13 +128,31 @@ const Reports = () => {
 
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-3">
-        <Button onClick={handleDownloadPDF} className="gap-2">
-          <Download className="h-4 w-4" />
-          Generate PDF
+        <Button onClick={handleDownloadPDF} className="gap-2" disabled={isGenerating}>
+          {isGenerating ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Memproses...
+            </>
+          ) : (
+            <>
+              <Download className="h-4 w-4" />
+              Generate PDF
+            </>
+          )}
         </Button>
-        <Button onClick={handleExportExcel} variant="outline" className="gap-2">
-          <FileSpreadsheet className="h-4 w-4" />
-          Export Excel
+        <Button onClick={handleExportExcel} variant="outline" className="gap-2" disabled={isGenerating}>
+          {isGenerating ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Memproses...
+            </>
+          ) : (
+            <>
+              <FileSpreadsheet className="h-4 w-4" />
+              Export Excel
+            </>
+          )}
         </Button>
       </div>
 
