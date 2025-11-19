@@ -120,6 +120,9 @@ const Search = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 h-12 text-base"
             />
+            {isLoading && debouncedSearchQuery && (
+              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 animate-spin text-muted-foreground" />
+            )}
           </div>
         </div>
 
@@ -157,16 +160,16 @@ const Search = () => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="start-date" className="text-sm font-medium">Tanggal Mulai</Label>
-            <Input 
+            <Input
               id="start-date"
-              type="date" 
+              type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="end-date" className="text-sm font-medium">Tanggal Akhir</Label>
-            <Input 
+            <Input
               id="end-date"
               type="date"
               value={endDate}
@@ -179,11 +182,46 @@ const Search = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Hasil Pencarian</h2>
-          <p className="text-sm text-muted-foreground">
-            Menampilkan {filteredVehicles.length} dari {mockVehicles.length} data
-          </p>
+          <div className="flex items-center gap-4">
+            {isLoading && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Mencari...
+              </div>
+            )}
+            <p className="text-sm text-muted-foreground">
+              {isLoading ? (
+                "Mencari data..."
+              ) : (
+                `Menampilkan ${vehicleData.length} dari ${searchResult?.data?.total || 0} data`
+              )}
+            </p>
+          </div>
         </div>
-        <VehicleTable vehicles={filteredVehicles} />
+
+        {isLoading ? (
+          <VehicleTableSkeleton />
+        ) : error ? (
+          <div className="bg-card p-8 rounded-lg border text-center">
+            <p className="text-muted-foreground">
+              Terjadi kesalahan saat mencari data. Silakan coba lagi.
+            </p>
+          </div>
+        ) : vehicleData.length === 0 && (debouncedSearchQuery || vehicleType !== "all" || taxStatus !== "all" || startDate || endDate) ? (
+          <div className="bg-card p-8 rounded-lg border text-center">
+            <p className="text-muted-foreground">
+              Tidak ada data yang ditemukan dengan kriteria pencarian tersebut.
+            </p>
+          </div>
+        ) : vehicleData.length === 0 ? (
+          <div className="bg-card p-8 rounded-lg border text-center">
+            <p className="text-muted-foreground">
+              Masukkan kata kunci pencarian atau filter untuk menampilkan data kendaraan.
+            </p>
+          </div>
+        ) : (
+          <VehicleTable vehicles={vehicleData} />
+        )}
       </div>
     </div>
   );
