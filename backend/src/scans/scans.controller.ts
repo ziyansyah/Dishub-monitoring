@@ -51,7 +51,7 @@ export class ScansController {
   @Permissions('view')
   @ApiOperation({ summary: 'Get recent scans for dashboard' })
   @ApiResponse({ status: 200, description: 'Recent scans retrieved successfully' })
-  findRecent(@Query('limit') limit?: number) {
+  findRecent(@Query('limit') limit?: string) {
     return this.scansService.findRecent(limit ? parseInt(limit) : 10);
   }
 
