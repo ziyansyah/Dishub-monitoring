@@ -18,7 +18,8 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = localStorage.getItem("dishub_admin") === "true";
+  const isAuthenticated = localStorage.getItem("dishub_admin") === "true" &&
+                         localStorage.getItem("dishub_token");
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 };
 
