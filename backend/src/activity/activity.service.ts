@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, parseISO, isAfter, isBefore, isValid } from 'date-fns';
-import * as csv from 'csv-stringifier/sync';
 
 @Injectable()
 export class ActivityService {
