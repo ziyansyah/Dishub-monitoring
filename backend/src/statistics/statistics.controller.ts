@@ -3,15 +3,11 @@ import {
   Get,
   Query,
   UseGuards,
-  CacheInterceptor,
-  CacheKey,
-  CacheTTL,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { StatisticsService } from './statistics.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard, Permissions } from '../auth/guards/permissions.guard';
-import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @ApiTags('Statistics')
 @Controller('statistics')
