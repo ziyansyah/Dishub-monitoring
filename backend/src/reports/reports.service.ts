@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../database/prisma.service';
 import { GenerateReportDto } from './dto/generate-report.dto';
 import * as ExcelJS from 'exceljs';
-import * as PDFDocument from 'pdfkit';
+import PDFDocument from 'pdfkit';
 import * as fs from 'fs';
 import * as path from 'path';
 import { format, parseISO, isValid } from 'date-fns';
