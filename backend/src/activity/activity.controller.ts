@@ -34,7 +34,7 @@ export class ActivityController {
   @Permissions('view')
   @ApiOperation({ summary: 'Get recent activity logs' })
   @ApiResponse({ status: 200, description: 'Recent activity logs retrieved successfully' })
-  getRecentLogs(@Query('limit') limit?: number) {
+  getRecentLogs(@Query('limit') limit?: string) {
     return this.activityService.getRecentLogs(limit ? parseInt(limit) : 20);
   }
 
