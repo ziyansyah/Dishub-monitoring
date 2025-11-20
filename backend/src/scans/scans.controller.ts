@@ -83,7 +83,7 @@ export class ScansController {
   @Permissions('view')
   @ApiOperation({ summary: 'Get most frequently scanned vehicles' })
   @ApiResponse({ status: 200, description: 'Top scanned vehicles retrieved successfully' })
-  getTopScannedVehicles(@Query('limit') limit?: number) {
+  getTopScannedVehicles(@Query('limit') limit?: string) {
     return this.scansService.getTopScannedVehicles(limit ? parseInt(limit) : 10);
   }
 
