@@ -58,7 +58,7 @@ export class ActivityController {
   @Permissions('view')
   @ApiOperation({ summary: 'Get activities by user' })
   @ApiResponse({ status: 200, description: 'User activities retrieved successfully' })
-  getActivitiesByUser(@Param('userId') userId: string, @Query('limit') limit?: number) {
+  getActivitiesByUser(@Param('userId') userId: string, @Query('limit') limit?: string) {
     return this.activityService.getActivityByUser(userId, limit ? parseInt(limit) : 50);
   }
 
