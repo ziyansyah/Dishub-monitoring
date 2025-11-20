@@ -58,7 +58,7 @@ export declare class ScansController {
             pages: number;
         };
     }>;
-    findRecent(limit?: number): Promise<({
+    findRecent(limit?: string): Promise<({
         user: {
             username: string;
             name: string;
@@ -134,7 +134,7 @@ export declare class ScansController {
             location: number;
         };
     })[]>;
-    getTopScannedVehicles(limit?: number): Promise<(import(".prisma/client").Prisma.PickEnumerable<import(".prisma/client").Prisma.ScanGroupByOutputType, "plateNumber"[]> & {
+    getTopScannedVehicles(limit?: string): Promise<(import(".prisma/client").Prisma.PickEnumerable<import(".prisma/client").Prisma.ScanGroupByOutputType, "plateNumber"[]> & {
         _count: {
             plateNumber: number;
         };

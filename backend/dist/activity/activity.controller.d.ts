@@ -30,7 +30,7 @@ export declare class ActivityController {
             pages: number;
         };
     }>;
-    getRecentLogs(limit?: number): Promise<({
+    getRecentLogs(limit?: string): Promise<({
         user: {
             role: {
                 name: string;
@@ -71,7 +71,7 @@ export declare class ActivityController {
         }[];
     }>;
     getActionsList(): Promise<string[]>;
-    getActivitiesByUser(userId: string, limit?: number): Promise<({
+    getActivitiesByUser(userId: string, limit?: string): Promise<({
         user: {
             username: string;
             name: string;

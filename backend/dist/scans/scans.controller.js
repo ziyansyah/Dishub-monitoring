@@ -83,7 +83,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Recent scans retrieved successfully' }),
     __param(0, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], ScansController.prototype, "findRecent", null);
 __decorate([
@@ -121,7 +121,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Top scanned vehicles retrieved successfully' }),
     __param(0, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], ScansController.prototype, "getTopScannedVehicles", null);
 __decorate([

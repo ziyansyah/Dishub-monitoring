@@ -78,7 +78,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Recent activity logs retrieved successfully' }),
     __param(0, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], ActivityController.prototype, "getRecentLogs", null);
 __decorate([
@@ -104,10 +104,10 @@ __decorate([
     (0, permissions_guard_1.Permissions)('view'),
     (0, swagger_1.ApiOperation)({ summary: 'Get activities by user' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'User activities retrieved successfully' }),
-    __param(0, Param('userId')),
+    __param(0, (0, common_1.Param)('userId')),
     __param(1, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Number]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], ActivityController.prototype, "getActivitiesByUser", null);
 __decorate([
