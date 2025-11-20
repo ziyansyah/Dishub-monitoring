@@ -7,6 +7,7 @@ import {
   UseGuards,
   Res,
   Headers,
+  Param,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Response } from 'express';
