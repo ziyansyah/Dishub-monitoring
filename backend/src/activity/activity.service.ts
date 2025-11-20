@@ -279,22 +279,19 @@ export class ActivityService {
       Details: log.details || '',
     }));
 
-    const csvStringifier = csv.stringify({
-      header: true,
-      columns: [
-        'Timestamp',
-        'User',
-        'Username',
-        'Role',
-        'Action',
-        'Status',
-        'IP Address',
-        'User Agent',
-        'Details',
-      ],
+    // Convert to CSV manually
+    const headers = ['Timestamp', 'User', 'Username', 'Role', 'Action', 'Status', 'IP Address', 'User Agent', 'Details'];
+    const csvRows = [headers.join(',')];
+
+    csvData.forEach(row => {
+      const values = headers.map(header => {
+        const value = row[header] || '';
+        return `"${String(value).replace(/"/g, '""')}"`; // Escape quotes and wrap in quotes
+      });
+      csvRows.push(values.join(','));
     });
 
-    return csvStringifier(csvData);
+    return csvRows.join('\n');
   }
 
   async logActivity(action: string, userId: string, ipAddress: string, userAgent: string, status: 'success' | 'failed', details?: string) {
